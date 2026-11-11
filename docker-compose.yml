@@ -1,0 +1,52 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      MAX_FILE_MB: ${MAX_FILE_MB:-20}
+      MAX_REQUEST_MB: ${MAX_REQUEST_MB:-64}
+      MAX_FILES: ${MAX_FILES:-20}
+      MAX_PAGES: ${MAX_PAGES:-100}
+      MAX_IMAGE_PIXELS: ${MAX_IMAGE_PIXELS:-25000000}
+      MAX_RENDER_PIXELS: ${MAX_RENDER_PIXELS:-100000000}
+      MAX_CONCURRENT_JOBS: ${MAX_CONCURRENT_JOBS:-2}
+      REQUESTS_PER_MINUTE: ${REQUESTS_PER_MINUTE:-20}
+      PROCESSING_TIMEOUT_SECONDS: ${PROCESSING_TIMEOUT_SECONDS:-180}
+      TEMP_RETENTION_SECONDS: ${TEMP_RETENTION_SECONDS:-900}
+      OMP_NUM_THREADS: 1
+      U2NET_HOME: /home/filecraft/.u2net
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - rembg_models:/home/filecraft/.u2net
+    tmpfs:
+      - /tmp:size=1073741824,mode=1777
+    mem_limit: 3g
+    cpus: 2
+    pids_limit: 128
+    init: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        API_INTERNAL_URL: http://backend:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    init: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+volumes:
+  rembg_models:

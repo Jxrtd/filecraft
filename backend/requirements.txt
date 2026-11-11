@@ -1,0 +1,14 @@
+fastapi==0.162.4
+uvicorn[standard]==0.54.0
+python-multipart==0.0.33
+Pillow==12.3.0
+PyMuPDF==1.28.2
+img2pdf==0.6.3
+pytesseract==0.3.13
+rembg[cpu]==2.0.87
+olefile==0.47
+pytest==9.2.0
+httpx==0.28.1
+ruff==0.17.4
+pdf2docx==0.5.13
+python-docx==1.2.0
