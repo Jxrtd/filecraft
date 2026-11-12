@@ -4,13 +4,19 @@ from pathlib import Path
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Request
+from pydantic import BaseModel
 from starlette.responses import FileResponse, JSONResponse
 
 from app.core import config
 from app.core.filenames import download_name
 from app.core.jobs import create_job, delete_job, run_job
+from app.services.text_tools import detect, humanize
 
 router = APIRouter(prefix="/api")
+
+
+class TextRequest(BaseModel):
+    text: str
 
 
 class EphemeralFileResponse(FileResponse):
@@ -33,7 +39,35 @@ async def limits():
         "max_files": config.MAX_FILES,
         "max_pages": config.MAX_PAGES,
         "abandoned_retention_seconds": config.RETENTION,
+        "max_text_chars": config.MAX_TEXT_CHARS,
     }
+
+
+def validated_text(payload: TextRequest) -> str:
+    text = payload.text.strip()
+    if not text:
+        raise HTTPException(422, "Enter some text first.")
+    if len(text) > config.MAX_TEXT_CHARS:
+        raise HTTPException(413, f"Text must be {config.MAX_TEXT_CHARS:,} characters or less.")
+    return text
+
+
+@router.post("/humanize-text")
+async def humanize_text(payload: TextRequest):
+    text = validated_text(payload)
+    return JSONResponse(
+        {"text": await asyncio.to_thread(humanize, text)},
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+@router.post("/detect-ai-text")
+async def detect_ai_text(payload: TextRequest):
+    text = validated_text(payload)
+    return JSONResponse(
+        await asyncio.to_thread(detect, text),
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @router.post("/{operation}")

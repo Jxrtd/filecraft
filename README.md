@@ -7,6 +7,8 @@ A responsive Next.js / TypeScript / Tailwind frontend and Python FastAPI backend
 - **Combine PDFs:** order two or more PDFs and merge their pages directly with PyMuPDF, preserving images, annotations, and form widgets. The combined page count must fit `MAX_PAGES`. The first file in the selected order supplies the download filename.
 - **Image to Text:** English Tesseract OCR for JPG, PNG, and WebP. Edit text, copy it, or download UTF-8 TXT; a blank result explains that no readable text was found.
 - **Remove Background:** real rembg/u2netp processing with original/result comparison, a transparency checkerboard, and transparent PNG download.
+- **Text Humanizer:** simplifies stiff or overly formal phrasing locally, with editable output, copy, and TXT download. It does not invent new facts or call a third-party language model.
+- **AI Text Detector:** returns complementary human-like and AI-like writing-pattern percentages, confidence based on sample length, and the signals behind the estimate. It is explicitly an experimental style estimate, not proof of authorship.
 - Drag and drop or browse, file details, reset/removal, keyboard image reordering, loading states, accessible labels, reduced-motion support, real errors, and working download links. Processing uses an indeterminate spinner, never invented progress percentages.
 
 Downloads keep the uploaded file's base name and change only its extension (for example, `Report.pdf` becomes `Report.docx`). OCR TXT and transparent PNG downloads follow the same rule. A combined image PDF uses the first image in the selected page order; rendered PDF pages download in a ZIP named after the source PDF. Unsafe path/control characters are removed or replaced in download names; internal temporary files continue to use generated names.
@@ -93,6 +95,7 @@ Docker Compose reads `.env`. For local uvicorn, export variables in your shell (
 | `MAX_PAGES` | 100 | Maximum source PDF pages |
 | `MAX_IMAGE_PIXELS` | 25000000 | Decoded image size / individual PDF render size |
 | `MAX_RENDER_PIXELS` | 100000000 | Total decoded pixels across rendered PDF pages |
+| `MAX_TEXT_CHARS` | 20000 | Maximum input length for either text tool |
 | `MAX_CONCURRENT_JOBS` | 2 | Active POST requests, including upload and download; excess returns 429 |
 | `REQUESTS_PER_MINUTE` | 20 | Per-client IP POST requests; excess returns 429 |
 | `PROCESSING_TIMEOUT_SECONDS` | 180 | Worker deadline, including model setup; returns 504 on timeout |
@@ -154,7 +157,7 @@ backend/app/core/            Configuration, admission limits, jobs, janitor
 backend/tests/               Validation and real processing endpoint tests
 ```
 
-API: `GET /api/health`, `GET /api/config`; POST multipart `files` to `/api/images-pdf`, `/api/office-pdf`, `/api/pdf-images`, `/api/ocr`, `/api/remove-background`, `/api/pdf-word`, `/api/word-pdf`, `/api/pdf-edit`, or `/api/pdf-merge`. Optional `page_size` is `a4`, `letter`, or `original`; `image_format` is `png` or `jpg`. Output is PDF for images/Office/Word to PDF, ZIP for PDF pages, JSON `{text: string}` for OCR, PNG for background removal, or DOCX for PDF to Word. The API documentation at `/api/docs` describes request URLs; multipart inputs are described here because routes share one request handler.
+API: `GET /api/health`, `GET /api/config`; POST multipart `files` to `/api/images-pdf`, `/api/office-pdf`, `/api/pdf-images`, `/api/ocr`, `/api/remove-background`, `/api/pdf-word`, `/api/word-pdf`, `/api/pdf-edit`, or `/api/pdf-merge`. Optional `page_size` is `a4`, `letter`, or `original`; `image_format` is `png` or `jpg`. Output is PDF for images/Office/Word to PDF, ZIP for PDF pages, JSON `{text: string}` for OCR, PNG for background removal, or DOCX for PDF to Word. `POST /api/humanize-text` and `POST /api/detect-ai-text` accept JSON `{text: string}` and return JSON with `Cache-Control: no-store`. The API documentation at `/api/docs` describes request URLs; multipart inputs are described here because routes share one request handler.
 
 
 ### PDF editor / merger API

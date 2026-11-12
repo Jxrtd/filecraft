@@ -25,6 +25,7 @@ CORS_ORIGINS = [
     x.strip() for x in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",") if x.strip()
 ]
 MAX_RENDER_PIXELS = positive("MAX_RENDER_PIXELS", 100000000)
+MAX_TEXT_CHARS = positive("MAX_TEXT_CHARS", 20000)
 
 
 def libreoffice_binary() -> str:

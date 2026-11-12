@@ -12,6 +12,8 @@ export default function Navigation() {
         ["/merge-pdf", "Combine PDFs"],
         ["/image-to-text", "Image to Text"],
         ["/remove-background", "Remove Background"],
+        ["/text-humanizer", "Text Humanizer"],
+        ["/ai-detector", "AI Detector"],
       ].map(([href, label]) => (
         <Link
           key={href}

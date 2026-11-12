@@ -12,8 +12,30 @@ import {
   Layers2,
   PencilLine,
   Files,
+  WandSparkles,
+  Gauge,
 } from "lucide-react";
 const tools = [
+  {
+    href: "/text-humanizer",
+    icon: WandSparkles,
+    name: "Text Humanizer",
+    text: "Turn stiff, overly formal paragraphs into clearer, more natural writing while keeping the original meaning.",
+    formats: "PASTE TEXT · EDIT · DOWNLOAD",
+    color: "peach",
+    number: "06",
+    action: "Humanize your text",
+  },
+  {
+    href: "/ai-detector",
+    icon: Gauge,
+    name: "AI Text Detector",
+    text: "Review writing patterns and get an experimental human-like versus AI-like percentage estimate.",
+    formats: "PATTERN ESTIMATE · NO FALSE CERTAINTY",
+    color: "lavender",
+    number: "07",
+    action: "Analyze some text",
+  },
   {
     href: "/pdf-editor",
     icon: PencilLine,
@@ -78,7 +100,7 @@ export default function Home() {
           <span className="hero-spark">✳</span>
         </h1>
         <p>
-          Convert, extract, and create with five everyday file tools.
+          Convert, extract, and create with seven everyday tools.
           <br className="desktop-break" /> No accounts. No complicated steps.
           Just what you need.
         </p>
@@ -141,7 +163,7 @@ export default function Home() {
             <h2>A good tool makes all the difference.</h2>
           </div>
           <span className="section-aside">
-            Five tools. Endless little wins. <ArrowUpRight size={18} />
+            Seven tools. Endless little wins. <ArrowUpRight size={18} />
           </span>
         </div>
         <div className="tool-grid">

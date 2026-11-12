@@ -34,6 +34,20 @@ export const tools = {
       "Remove the background from your image and download a transparent PNG.",
     color: "sage",
   },
+  "text-humanizer": {
+    name: "Text Humanizer",
+    intro: "Keep the meaning. Lose the stiffness.",
+    description:
+      "Make formal or robotic phrasing more direct and conversational, then edit or download it.",
+    color: "peach",
+  },
+  "ai-detector": {
+    name: "AI Text Detector",
+    intro: "Look at the patterns behind the paragraph.",
+    description:
+      "Estimate AI-like and human-like writing patterns with a transparent, non-definitive score.",
+    color: "lavender",
+  },
 } as const;
 export type ToolSlug = keyof typeof tools;
 export type Limits = {
@@ -42,5 +56,6 @@ export type Limits = {
   max_files: number;
   max_pages: number;
   abandoned_retention_seconds: number;
+  max_text_chars: number;
 };
 export const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
