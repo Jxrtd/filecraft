@@ -161,6 +161,52 @@ export default function ToolWorkspace({ slug }: { slug: ToolSlug }) {
       })),
     ]);
   }
+  useEffect(() => {
+    const acceptsPastedImages =
+      operation === "images-pdf" ||
+      operation === "ocr" ||
+      operation === "remove-background";
+    if (!acceptsPastedImages) return;
+
+    function handlePaste(event: ClipboardEvent) {
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA")
+      )
+        return;
+
+      const images = Array.from(event.clipboardData?.items || [])
+        .filter(
+          (item) => item.kind === "file" && item.type.startsWith("image/"),
+        )
+        .map((item, index) => {
+          const image = item.getAsFile();
+          if (!image) return null;
+          const extension =
+            image.type === "image/jpeg"
+              ? "jpg"
+              : image.type === "image/webp"
+                ? "webp"
+                : "png";
+          return new File(
+            [image],
+            `pasted-image-${Date.now()}-${index + 1}.${extension}`,
+            { type: image.type || `image/${extension}` },
+          );
+        })
+        .filter((image): image is File => image !== null);
+
+      if (!images.length) return;
+      event.preventDefault();
+      select(images);
+    }
+
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  });
   function move(index: number, offset: number) {
     const next = [...files];
     [next[index], next[index + offset]] = [next[index + offset], next[index]];
@@ -338,7 +384,14 @@ export default function ToolWorkspace({ slug }: { slug: ToolSlug }) {
                 ? "Add a few more?"
                 : "A fresh start for your files."}
             </h3>
-            <p>Drag & drop {multiple ? "your images" : "a file"} here, or</p>
+            <p>
+              Drag & drop {multiple ? "your images" : "a file"} here
+              {(operation === "images-pdf" ||
+                operation === "ocr" ||
+                operation === "remove-background") &&
+                ", paste an image,"}{" "}
+              or
+            </p>
             <button
               className="button primary"
               disabled={busy || !limits}
